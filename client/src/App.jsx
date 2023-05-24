@@ -1,35 +1,46 @@
-import { useEffect, useState } from 'react'
-import './index.css'
-import io from 'socket.io-client'
+import { useEffect, useState } from 'react';
+import './index.css';
+import io from 'socket.io-client';
 
 function App() {
   const [balance, setBalance] = useState(0);
   const [userId, setUserId] = useState('');
-  let socket;
-  useEffect(() => {
-    socket = io('http://localhost:3000')
+  const [userList, setUserList] = useState([]);
+  const [socket, setSocket] = useState(null); // Store socket in component state
 
-    socket.on('connect', () => {
+  useEffect(() => {
+    const newSocket = io('http://localhost:3000');
+
+    setSocket(newSocket); // Set the socket in component state
+
+    newSocket.on('connect', () => {
       console.log('Connected to server');
     });
-    socket.on('disconnect', () => {
+
+    newSocket.on('disconnect', () => {
       console.log('Disconnected from server');
     });
 
     // Event listener for receiving gamble result
-    socket.on('gambleResult', (result) => {
+    newSocket.on('gambleResult', (result) => {
       console.log('Received gamble result:', result);
       // Update the relevant component with the received result
     });
 
+    newSocket.on('users', (result) => {
+      setUserList(result);
+      console.log(result);
+    });
+
     return () => {
-      socket.disconnect();
+      newSocket.disconnect();
     };
   }, []);
 
   const serverCall = () => {
     const betAmount = 100; // Replace with the actual bet amount from your component
     socket.emit('placeBet', betAmount);
+    socket.emit('getUsers');
   };
 
   return (
@@ -41,6 +52,6 @@ function App() {
       </div>
     </div>
   );
-};
+}
 
-export default App
+export default App;

@@ -7,7 +7,7 @@ app.use(cors());
 const server = http.createServer(app);
 
 const gambleHistory = [];
-
+const users = [];
 const io = new Server(server, {
     cors: {
         origin: '*',
@@ -18,7 +18,9 @@ const io = new Server(server, {
 
 io.on('connection', (socket) => {
     console.log('A user connected');
-  
+    //add socket id to users
+    users.push(socket.id);
+
     // Event listener for placing a bet
     socket.on('placeBet', (betAmount) => {
       // Generate a random outcome (example logic)
@@ -27,17 +29,24 @@ io.on('connection', (socket) => {
         betAmount,
         outcome,
       };
-  
       // Add the result to gamble history
       gambleHistory.push(result);
-  
+      console.log("gambleHistory", gambleHistory)
       // Emit the result back to the client
       socket.emit('gambleResult', result);
     });
   
+    socket.on('getUsers', () => {
+        socket.emit('users', users);
+      });
+
+
     // Event listener for disconnecting
     socket.on('disconnect', () => {
       console.log('A user disconnected');
+        // Remove the socket id from users
+        users.splice(users.indexOf(socket.id), 1);
+        
     });
   });
 server.listen(3000, () => {
