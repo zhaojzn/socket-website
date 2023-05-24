@@ -41,7 +41,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('join', (data) => {
-      users.push(socket.id);
+      users.push(socket.id + " - " + data);
       socket.broadcast.emit('users', users);
   });
 
@@ -49,8 +49,11 @@ io.on('connection', (socket) => {
     // Event listener for disconnecting
     socket.on('disconnect', () => {
       console.log('A user disconnected');
-      users.splice(users.indexOf(socket.id), 1);
-      socket.broadcast.emit('users', users);
+      const index = users.findIndex((user) => user.startsWith(socket.id));
+      if (index !== -1) {
+        users.splice(index, 1);
+        socket.broadcast.emit('users', users);
+      }
     });
 
 
