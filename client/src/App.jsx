@@ -11,9 +11,7 @@ function App() {
 
   useEffect(() => {
     const newSocket = io('http://localhost:3000');
-
     setSocket(newSocket); // Set the socket in component state
-
     newSocket.on('connect', () => {
       console.log('Connected to server');
       const generatedId = uuidv4(); // Generate a random ID using uuid
@@ -48,11 +46,10 @@ function App() {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center">
-      <div className="h-1/2 w-1/2 items-center justify-center text-center flex flex-col">
+    <div className="h-screen flex items-center justify-center bg-bg">
+      <div className="h-1/2 w-1/2 bg-white rounded-lg items-center justify-center text-center flex flex-col">
         <span>Balance: {balance}</span>
         <span>User: {userId}</span>
-        <button onClick={serverCall}>Click here</button>
         {userList.map((user) => (
           <div key={user}>
             <p>{user}</p>
