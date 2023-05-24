@@ -18,8 +18,8 @@ const io = new Server(server, {
 
 io.on('connection', (socket) => {
     console.log('A user connected');
-    //add socket id to users
     users.push(socket.id);
+    socket.broadcast.emit('users', users);
 
     // Event listener for placing a bet
     socket.on('placeBet', (betAmount) => {
@@ -46,6 +46,7 @@ io.on('connection', (socket) => {
       console.log('A user disconnected');
         // Remove the socket id from users
         users.splice(users.indexOf(socket.id), 1);
+        socket.broadcast.emit('users', users);
         
     });
   });
