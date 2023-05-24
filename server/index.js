@@ -38,7 +38,7 @@ io.on('connection', (socket) => {
   
     socket.on('getUsers', () => {
         socket.emit('users', users);
-      });
+    });
 
 
     // Event listener for disconnecting

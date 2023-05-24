@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import './index.css';
 import io from 'socket.io-client';
+import { v4 as uuidv4 } from 'uuid'; // Import the v4 method from uuid
 
 function App() {
   const [balance, setBalance] = useState(0);
@@ -15,6 +16,10 @@ function App() {
 
     newSocket.on('connect', () => {
       console.log('Connected to server');
+      const generatedId = uuidv4(); // Generate a random ID using uuid
+      setUserId(generatedId); // Set the generated ID as the user ID
+      newSocket.emit('join', { id: generatedId }); // Send the generated ID when joining
+      newSocket.emit('getUsers'); // Send the generated ID when joining
     });
 
     newSocket.on('disconnect', () => {
@@ -40,7 +45,6 @@ function App() {
   const serverCall = () => {
     const betAmount = 100; // Replace with the actual bet amount from your component
     socket.emit('placeBet', betAmount);
-    socket.emit('getUsers');
   };
 
   return (
@@ -49,6 +53,11 @@ function App() {
         <span>Balance: {balance}</span>
         <span>User: {userId}</span>
         <button onClick={serverCall}>Click here</button>
+        {userList.map((user) => (
+          <div key={user}>
+            <p>{user}</p>
+          </div>
+        ))}
       </div>
     </div>
   );
