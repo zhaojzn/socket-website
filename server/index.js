@@ -8,6 +8,7 @@ const server = http.createServer(app);
 
 const gambleHistory = [];
 const users = [];
+
 const io = new Server(server, {
     cors: {
         origin: '*',
@@ -18,8 +19,7 @@ const io = new Server(server, {
 
 io.on('connection', (socket) => {
     console.log('A user connected');
-    users.push(socket.id);
-    socket.broadcast.emit('users', users);
+   
 
     // Event listener for placing a bet
     socket.on('placeBet', (betAmount) => {
@@ -40,15 +40,21 @@ io.on('connection', (socket) => {
         socket.emit('users', users);
     });
 
+    socket.on('join', (data) => {
+      users.push(socket.id);
+      socket.broadcast.emit('users', users);
+  });
+
 
     // Event listener for disconnecting
     socket.on('disconnect', () => {
       console.log('A user disconnected');
-        // Remove the socket id from users
-        users.splice(users.indexOf(socket.id), 1);
-        socket.broadcast.emit('users', users);
-        
+      users.splice(users.indexOf(socket.id), 1);
+      socket.broadcast.emit('users', users);
     });
+
+
+
   });
 server.listen(3000, () => {
     console.log('listening on *:3000');
