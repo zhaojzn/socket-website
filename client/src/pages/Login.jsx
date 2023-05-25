@@ -1,16 +1,30 @@
 import { async } from "@firebase/util";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { auth,storage,db } from '../firebase'
+import io from 'socket.io-client';
+import { useEffect, useState, useContext} from 'react';
 
 const Login = () =>{
 
+  const [userList, setUserList] = useState([]);
+  const [socket, setSocket] = useState(null); // Store socket in component state
+
+  useEffect(() => {
+    const newSocket = io('http://localhost:3000');
+    setSocket(newSocket); // Set the socket in component state
+    newSocket.on('users', (result) => {
+      setUserList(result);
+    });
+    newSocket.emit('getUsers');
 
 
-    const navigate = useNavigate();
+  }, []);
+  const navigate = useNavigate();
     
-    const handleSumbit = async (e) =>{
+  const handleSumbit = async (e) =>{
+      console.log(userList)
       e.preventDefault()
       const email = e.target[0].value
       const password = e.target[1].value
@@ -18,6 +32,22 @@ const Login = () =>{
 
       try{
         await signInWithEmailAndPassword(auth, email, password)
+        if(userList.includes(auth.currentUser.uid)){
+          console.log("passed")
+          toast.warn("User already logged in", {
+            position: "top-center",
+            autoClose: 1000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+            });
+          signOut(auth)
+          return;
+        
+        }
         navigate('/')
       }catch(e){
         toast.warn(e.message, {

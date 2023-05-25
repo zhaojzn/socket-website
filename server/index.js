@@ -40,6 +40,8 @@ io.on('connection', (socket) => {
         socket.emit('users', users);
     });
 
+
+
     socket.on('join', (data) => {
       users.push(socket.id + " - " + data);
       socket.broadcast.emit('users', users);
